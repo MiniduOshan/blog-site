@@ -4,6 +4,8 @@ import Header from "./components/header.jsx";
 import Home from "./pages/home.jsx";
 import About from "./pages/about.jsx";
 import BlogDetails from "./pages/displayBlog.jsx";
+import Contact from "./pages/contact.jsx";
+import AddBlog from "./pages/AddBlog";
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/blog/:id" element={<BlogDetails />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/add" element={<AddBlog />} />
       </Routes>
     </div>
   );
