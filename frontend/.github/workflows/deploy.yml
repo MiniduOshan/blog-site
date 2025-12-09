@@ -1,0 +1,53 @@
+# .github/workflows/deploy.yml
+
+name: Deploy Frontend to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main 
+  workflow_dispatch: 
+
+env:
+  # The environment variable that isolates the frontend folder
+  FRONTEND_DIR: frontend 
+  REPO_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' 
+          cache: 'npm'
+          cache-dependency-path: ${{ env.FRONTEND_DIR }}/package-lock.json
+
+      - name: 📄 Define Base Path for Deployment
+        run: echo "BASE_PATH=/${{ env.REPO_NAME }}/" >> $GITHUB_ENV
+
+      # --- Isolation starts here ---
+      - name: 📦 Install Frontend Dependencies
+        run: npm install
+        working-directory: ${{ env.FRONTEND_DIR }} # 👈 Command runs ONLY in frontend/
+
+      - name: ⚙️ Build Frontend
+        run: npm run build -- --base $BASE_PATH
+        working-directory: ${{ env.FRONTEND_DIR }} # 👈 Command runs ONLY in frontend/
+        env:
+          NODE_ENV: production
+          
+      - name: 📤 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Publish ONLY the build output from the frontend folder
+          publish_dir: ${{ env.FRONTEND_DIR }}/dist # 👈 Publish ONLY from frontend/dist
+          publish_branch: gh-pages 
+          destination_dir: . 
+          enable_jekyll: true
