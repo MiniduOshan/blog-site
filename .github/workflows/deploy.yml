@@ -1,53 +1,63 @@
-# .github/workflows/deploy.yml
+# .github/workflows/ci.yml
 
-name: Deploy Frontend to GitHub Pages
+name: Frontend CI - Build Only
 
+# Configure when the workflow should run
 on:
   push:
     branches:
-      - main 
+      - main # Runs on pushes to the 'main' branch
+  pull_request: # Also runs on pull requests, which is standard for CI
   workflow_dispatch: 
 
+# Define environment variables
 env:
-  # The environment variable that isolates the frontend folder
-  FRONTEND_DIR: frontend 
+  # Base directory of your frontend code
+  FRONTEND_DIR: frontend
+  # The name of the repository (used for setting the base path in Vite)
   REPO_NAME: ${{ github.event.repository.name }}
 
 jobs:
-  build_and_deploy:
+  build:
     runs-on: ubuntu-latest
     
     steps:
       - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
         
+      # Setup Node.js environment
       - name: 🛠️ Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20' 
           cache: 'npm'
+          # Use dependency path specific to the frontend folder
           cache-dependency-path: ${{ env.FRONTEND_DIR }}/package-lock.json
 
-      - name: 📄 Define Base Path for Deployment
+      # --- Configuration for Subpath (Still needed for a correct build) ---
+      - name: 📄 Define Base Path for Build
+        # Even if not deploying, we set the base path for a production-ready build
         run: echo "BASE_PATH=/${{ env.REPO_NAME }}/" >> $GITHUB_ENV
 
-      # --- Isolation starts here ---
+      # --- Build Stage ---
       - name: 📦 Install Frontend Dependencies
         run: npm install
-        working-directory: ${{ env.FRONTEND_DIR }} # 👈 Command runs ONLY in frontend/
+        working-directory: ${{ env.FRONTEND_DIR }}
 
       - name: ⚙️ Build Frontend
+        # The build command runs, creating the `frontend/dist` folder
         run: npm run build -- --base $BASE_PATH
-        working-directory: ${{ env.FRONTEND_DIR }} # 👈 Command runs ONLY in frontend/
+        working-directory: ${{ env.FRONTEND_DIR }}
         env:
           NODE_ENV: production
           
-      - name: 📤 Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      # 🛑 The deployment step (peaceiris/actions-gh-pages) has been removed.
+      
+      # Optional: Artifact upload (highly recommended for CI)
+      - name: 📤 Upload Build Artifacts (dist folder)
+        uses: actions/upload-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Publish ONLY the build output from the frontend folder
-          publish_dir: ${{ env.FRONTEND_DIR }}/dist # 👈 Publish ONLY from frontend/dist
-          publish_branch: gh-pages 
-          destination_dir: . 
-          enable_jekyll: true
+          name: frontend-build-${{ github.sha }}
+          path: ${{ env.FRONTEND_DIR }}/dist
+          # Retention period for the artifact (e.g., 7 days)
+          retention-days: 7
