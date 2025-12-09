@@ -24,7 +24,7 @@ function Home() {
   }, []);
 
   const handleDelete = async (e, id) => {
-    e.preventDefault(); // Prevent navigating when clicking delete
+    e.preventDefault();
     if (window.confirm("Are you sure you want to delete this blog?")) {
       try {
         await axios.delete(`http://localhost:5000/api/blogs/${id}`);
@@ -52,8 +52,7 @@ function Home() {
   return (
     <div className="bg-gray-100 min-h-screen pb-10">
       <header className="w-full flex flex-col items-center pt-10 mb-10 px-4 text-center">
-        <img src={dummyData.user.profilePic} alt="Logo" 
-        className="w-28 h-28 rounded-full border-4 border-white shadow-lg object-cover transition-transform duration-300 hover:scale-105" />
+        <img src={dummyData.user.profilePic} alt="Logo" className="w-28 h-28 rounded-full border-4 border-white shadow-lg object-cover transition-transform duration-300 hover:scale-105" />
         <h1 className="text-4xl font-bold text-gray-800">My Blog</h1>
         <p className="text-gray-600 mt-2 max-w-xl">
           A place to share my thoughts and ideas with the world
@@ -61,22 +60,12 @@ function Home() {
       </header>
 
       <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-        {/* Blog Posts */}
         {posts.map((post) => (
           <Link
             key={post._id}
             to={`/blog/${post._id}`}
             className="group bg-white rounded-xl shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-2xl relative"
           >
-            <img
-              src={
-                post.image
-                  ? `http://localhost:5000/uploads/${post.image}`
-                  : "https://via.placeholder.com/400x250?text=No+Image"
-              }
-              alt={post.title}
-              className="w-full h-48 object-cover"
-            />
             <div className="p-4 flex flex-col justify-between h-64">
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-1">
@@ -88,7 +77,6 @@ function Home() {
                 <p className="text-gray-700">{post.content}</p>
               </div>
 
-              {/* Trash Icon */}
               <button
                 onClick={(e) => handleDelete(e, post._id)}
                 className="absolute top-3 right-3 text-blue-600 hover:text-red-600 bg-white rounded-full p-2 shadow"
@@ -99,7 +87,6 @@ function Home() {
           </Link>
         ))}
 
-        {/* Add New Blog */}
         <Link
           to="/add"
           className="bg-white rounded-xl shadow-md flex flex-col justify-center items-center cursor-pointer hover:shadow-lg transition p-6 h-64 transform hover:scale-105"

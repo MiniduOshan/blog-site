@@ -38,14 +38,7 @@ function BlogDetails() {
       <h1 className="text-3xl font-bold">{blog.title}</h1>
       <p className="text-gray-500">{blog.author} • {blog.date}</p>
 
-      {/* Fixed image URL */}
-      {blog.image && (
-        <img
-          src={`http://localhost:5000/uploads/${blog.image}`}
-          alt={blog.title}
-          className="w-full mt-4 rounded"
-        />
-      )}
+      {/* Image removed */}
 
       <p className="mt-4">{blog.content}</p>
       <p className="text-sm text-gray-500 mt-2">Tags: {blog.tags.join(", ")}</p>
